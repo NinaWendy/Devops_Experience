@@ -29,7 +29,7 @@ sudo apt install curl ca-certificates
 
 5. Install PostgreSQL:
     ```sh
-    sudo apt -y install postgresql-14
+    sudo apt -y install postgresql-16/14
     ```
 
 ## Checking Installed Versions
@@ -60,4 +60,10 @@ When PostgreSQL packages are installed, they create a default cluster for you to
 3. Upgrade the old PostgreSQL cluster:
     ```sh
     sudo pg_upgradecluster oldversion main
+    ```
+    
+Success. Please check that the upgraded cluster works. If it does,
+you can remove the old cluster with
+    ```
+    pg_dropcluster 12 main
     ```

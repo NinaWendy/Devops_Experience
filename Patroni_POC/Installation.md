@@ -3,31 +3,38 @@
 ## 1. NODE 1 & 2
 
 ### Update and Upgrade
+
 ```bash
 sudo apt-get update && sudo apt-get upgrade
 ```
 
 ### Install PostgreSQL
+
 Refer to [Postgres Installation](./Postgres.md)
 
 ### Stop PostgreSQL
+
 ```bash
 sudo systemctl stop postgresql
 ```
 
 ### Create Symlink
+
 ```bash
 sudo ln -s /usr/lib/postgresql/14/bin/* /usr/sbin/
 ```
 
 ### Install pip3
+
 ```bash
 sudo apt install python3-pip python3-dev libpq-dev -y
 sudo pip3 install --upgrade pip
 ```
 
 ### Install Patroni
+
 **IMPORTANT:** Install with sudo and without
+
 ```bash
 pip install patroni
 pip install python-etcd
@@ -35,10 +42,13 @@ pip install psycopg2
 ```
 
 ### Configure Patroni
+
 Edit the config file:
+
 ```bash
 sudo nano /etc/patroni.yml
 ```
+
 Refer to [Patroni Configuration](https://github.com/patroni/patroni/blob/master/postgres0.yml)
 
 ```yaml
@@ -47,57 +57,57 @@ namespace: /db/
 name: db-main
 
 restapi:
-    listen: 192.168.84.54:8008
-    connect_address: 192.168.84.54:8008
+  listen: 192.168.84.54:8008
+  connect_address: 192.168.84.54:8008
 etcd:
-    hosts: 192.168.84.53:2379
+  hosts: 192.168.84.53:2379
 
 bootstrap:
-    dcs:
-        ttl: 30
-        loop_wait: 10
-        retry_timeout: 10
-        maximum_lag_on_failover: 1048576
-        postgresql:
-            use_pg_rewind: true
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+    postgresql:
+      use_pg_rewind: true
 
-    initdb:
+  initdb:
     - encoding: UTF8
     - data-checksums
 
-    pg_hba:
+  pg_hba:
     - host replication replicator 127.0.0.1/32 md5
     - host replication replicator 192.168.84.54/0 md5
     - host replication replicator 192.168.84.56/0 md5
     - host all all 0.0.0.0/0 md5
 
-    users:
-        admin:
-            password: admin
-            options:
-                - createrole
-                - createdb
+  users:
+    admin:
+      password: admin
+      options:
+        - createrole
+        - createdb
 
 postgresql:
-    listen: 192.168.84.54:5432
-    connect_address: 192.168.84.54:5432
-    data_dir: /mnt/data/patroni/
-    pgpass: /tmp/pgpass
-    authentication:
-        replication:
-            username: replicator
-            password: password
-        superuser:
-            username: postgres
-            password: password
-    parameters:
-        unix_socket_directories: '.'
+  listen: 192.168.84.54:5432
+  connect_address: 192.168.84.54:5432
+  data_dir: /mnt/data/patroni/
+  pgpass: /tmp/pgpass
+  authentication:
+    replication:
+      username: replicator
+      password: password
+    superuser:
+      username: postgres
+      password: password
+  parameters:
+    unix_socket_directories: "."
 
 tags:
-    nofailover: false
-    noloadbalance: false
-    clonefrom: false
-    nosync: false
+  nofailover: false
+  noloadbalance: false
+  clonefrom: false
+  nosync: false
 ```
 
 `sudo mkdir -p /mnt/data/patroni/`
@@ -176,9 +186,8 @@ Show members of cluster
 `sudo nano /etc/haproxy/haproxy.cfg`
 
 ```
-
 global
-    maxconn 100
+    maxconn 500
 
 defaults
     log global
@@ -195,29 +204,16 @@ listen stats
     stats enable
     stats uri /
 
-frontend patroni-prod
-        mode tcp
-        maxconn 5000
-        bind *:5432
-        default_backend patroni_servers
-
-
-backend patroni_servers
-        mode tcp
-    option httpchk OPTIONS /leader
-        http-check expect status 200
-        default-server inter 3s fall 3 rise 2 on-marked-down shutdown-sessions
-
-        server node1 10.10.0.181:5432 maxconn 100 check port 8008
-        server node2 10.10.0.182:5432 maxconn 100 check port 8008
-
-listen postgres
+frontend myfrontend
     bind *:5000
-    option httpchk
-    http-check expect status 200
-    default-server inter 3s fall 3 rise 2 on-marked-down shutdown-sessions
-    server node1 10.10.0.181:5432 maxconn 100 check port 8008
-    server node2 10.10.0.182:5432 maxconn 100 check port 8008
+    default_backend myservers
+
+backend myservers
+    balance roundrobin
+    mode tcp
+    server db1 192.168.84.54:5432 maxconn 100 check port 8008
+    server db2 192.168.84.56:5432 maxconn 100 check port 8008
+    server db3 192.168.84.58:5432 maxconn 100 check port 8008
 ```
 
 `systemctl restart haproxy.service`
@@ -229,3 +225,27 @@ Access dashboard
 ```
     haproxy host ip:7000
 ```
+
+Enable Patroni service if everything is OK
+
+```
+    systemctl enable patroni.service
+```
+
+### PGTUNE
+
+`/etc/patroni/patroin.yaml` is configuration file for patroni
+
+```
+patronictl -c /etc/patroni/patroni.yaml edit-config
+```
+
+#### Get the specifications from the Node
+
+`free -g` : free memory in GB
+
+`nproc`: Shows the processing units or CPU cores
+
+`lscpu` : command will display information about the system's CPUs, including the number of physical CPU
+
+`netstat -na | grep -i established | wc -l` : Number of Established Connections
