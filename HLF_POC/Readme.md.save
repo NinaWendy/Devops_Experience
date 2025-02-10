@@ -1,0 +1,20 @@
+Benefits HLF Operator
+- Declarative
+- Abstraction
+- Based on kubernetes
+- Customizable 
+
+1. Install microk8s
+
+2. Join nodes to cluster
+
+3. Install helm
+
+4. Install krew
+
+5. Create namespace
+	- default ( hlf operator)
+	- fabric( orderer x1, ca x3, orgs x2, chaincode x1)
+
+
+
