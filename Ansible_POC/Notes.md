@@ -23,6 +23,7 @@
 ## Playbook
 
 At a minimum, each play defines two things:
+
 1. The managed nodes to target, using a pattern
 2. At least one task to execute
 
