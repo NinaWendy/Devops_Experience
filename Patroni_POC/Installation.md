@@ -234,7 +234,7 @@ Enable Patroni service if everything is OK
 
 ### PGTUNE
 
-`/etc/patroni/patroin.yaml` is configuration file for patroni
+`/etc/patroni/patroni.yaml` is configuration file for patroni
 
 ```
 patronictl -c /etc/patroni/patroni.yaml edit-config
