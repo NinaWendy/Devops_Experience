@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: init-app-deployment
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: init-app 
+  template:
+    metadata:
+      labels:
+        app: init-app 
+    spec:
+      containers:
+      - name: init-app 
+        image: pesaflow/ra-python-base 
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Running initialization script 1"
+            python /init-app/scripts/create_casandra_tables.py &&
+            echo "Running initialization script 2" &&
+            python /init-app/scripts/create_kafka_topics.py &&
+            echo "Running initialization script 3" &&
+            python /init-app/scripts/deploy_sink_connector.py
+
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+          requests:
+            memory: "1Gi"
+            cpu: "500m"

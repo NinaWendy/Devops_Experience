@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cassandra-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cassandra
+  template:
+    metadata:
+      labels:
+        app: cassandra
+    spec:
+      containers:
+      - name: cassandra
+        image: cassandra:latest
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+        env:
+          - name: CASSANDRA_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: db-secrets
+                key: cassandra-username
+          - name: CASSANDRA_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secrets
+                key: cassandra-password 
+        ports:
+        - containerPort: 9042 
+        volumeMounts:
+        - mountPath: /var/lib/cassandra/data 
+          name: cassandra-storage 
+      volumes:
+      - name: cassandra-storage 
+        persistentVolumeClaim:
+          claimName: cassandra-pvc
+
+---
+apiVersion: v1 
+kind: PersistentVolumeClaim 
+metadata:
+  name: cassandra-pvc 
+spec:
+  accessModes:
+    - ReadWriteOnce 
+  resources:
+    requests:
+      storage: 1Gi 

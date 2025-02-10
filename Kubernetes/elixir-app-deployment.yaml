@@ -1,0 +1,26 @@
+apiVersion : apps/v1  
+kind : Deployment  
+metadata :
+   name : elixir-app-deployment  
+spec :
+   replicas: 3  
+   selector :
+     matchLabels :
+       app : elixir-app  
+   template :
+     metadata :
+       labels :
+         app : elixir-app  
+     spec :
+       containers :
+       - name : elixir-app  
+         image : pesaflow/ra-elixir-base 
+         ports :
+         - containerPort :4000
+         resources:
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
