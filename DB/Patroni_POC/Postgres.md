@@ -67,3 +67,8 @@ you can remove the old cluster with
     ```
     pg_dropcluster 12 main
     ```
+
+
+    Remove
+
+`sudo apt-get --purge remove postgresql postgresql-*`

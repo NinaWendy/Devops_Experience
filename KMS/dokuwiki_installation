@@ -1,0 +1,31 @@
+1. Update System
+"sudo apt-get update"
+
+2. Install apache and php
+sudo apt-get install apache2 php php-gd php-yml php-json -y
+
+3. Start apache service
+systemctl start apache2
+
+4. Install dokuwiki
+Install from site
+
+5. Unpack the tar ball
+sudo tar xvf dokuwiki-stable.tgz
+
+6. Copy the folder to /var/www/
+sudo cp -r dokuwiki /var/www
+
+7.Change permissions
+sudo chown -R www-data:www-data /var/www/dokuwiki/
+
+8. Change document root in Apache to point to /var/www/dokuwiki
+cd /etc/apache2
+sudo nano sites-enabled/000*.conf...DocumentRoot /var/www/dokuwiki
+sudo nano apache2.conf.... Directory  /var/www/ AllowOverride All
+
+sudo service apache2 restart
+
+9.Delete the install.php file after setting up admin account
+cd /var/www/dokuwiki/
+sudo rm install.php

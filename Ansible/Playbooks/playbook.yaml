@@ -10,12 +10,12 @@
         regexp: '^Defaults\s+logfile'
         line: 'Defaults        logfile="/var/log/sudo"'
         state: present
-        validate: '/usr/sbin/visudo -cf %s'
+        validate: "/usr/sbin/visudo -cf %s"
 
     - name: Grant passwordless sudo to ubuntu user
       lineinfile:
         path: /etc/sudoers
         regexp: '^ubuntu\s+ALL=\(ALL\)\s+NOPASSWD:ALL'
-        line: 'ubuntu  ALL=(ALL) NOPASSWD:ALL'
+        line: "ubuntu  ALL=(ALL) NOPASSWD:ALL"
         state: present
-        validate: '/usr/sbin/visudo -cf %s'
+        validate: "/usr/sbin/visudo -cf %s"
