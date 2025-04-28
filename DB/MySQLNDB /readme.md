@@ -1,13 +1,10 @@
 # MYSQL NDB CLUSTER
 MySQL NDB Cluster is the distributed database combining linear scalability and high availability. It provides in-memory real-time access with transactional consistency across partitioned and distributed datasets. It is designed for mission critical applications.
 
-https://dev.mysql.com/downloads/cluster/
-
+[Download MySQL NDB Cluster](https://dev.mysql.com/downloads/cluster/)
 
 ## Architecture
 ![architecture](./architecture.png)
-
-
 
 ## Installation
 
@@ -15,7 +12,7 @@ https://dev.mysql.com/downloads/cluster/
 
 `sudo apt install libclass-methodmaker-perl`
 
-`sudo apt install baio1 libmecab2`
+`sudo apt install libaio1 libmecab2`
 
 mysql-cluster-community-data-node
 
@@ -24,6 +21,10 @@ mysql-cluster-community-data-node
 mysql-common
 
 `wget https://dev.mysql.com/get/Downloads/MySQL-Cluster-9.3/mysql-common_9.3.0-1ubuntu22.04_amd64.deb`
+
+mysql-cluster-community-client-plugins
+
+`wget https://dev.mysql.com/get/Downloads/MySQL-Cluster-9.3/mysql-cluster-community-client-plugins_9.3.0-1ubuntu22.04_amd64.deb`
 
 mysql-cluster-community-client-core
 
@@ -60,7 +61,7 @@ Install
 ndb-connectstring=ndb_server_ip
 ```
 
-`mkdir -p /usr/local/mysql/data`
+`sudo mkdir -p /usr/local/mysql/data`
 
 `sudo nano /etc/systemd/system/ndbd.service`
 
@@ -91,12 +92,14 @@ MYSQL Config
 ```yaml
 [mysqld]
 ndbcluster 
-ndb-connectstring=ndb_server_ip
+ndb-connectstring=ndb_mgm_server_ip
 [mysql_cluster] 
-ndb-connectstring=ndb_server_ip
+ndb-connectstring=ndb_mgm_server_ip
 ```
 
-`sudo service mysql restart`
+`sudo systemctl status mysql.service`
+
+`sudo systemctl restart mysql.service`
 
 `ndbd`
 
@@ -174,6 +177,9 @@ WantedBy=multi-user.target
 
 `sudo ndb_mgmd --initial --config-file=/usr/mysql-cluster/config.ini`
 
+![architecture](./conn1.png)
+
+![architecture](./conn2.png)
 
 
 Commands:
@@ -189,3 +195,4 @@ Commands:
 `pkill ndbd`-End process the nodes
 
 `pkill ndb mgmd`-End process the NDB management
+
