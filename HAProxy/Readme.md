@@ -1,10 +1,9 @@
 
-$ sudo apt install --no-install-recommends software-properties-common
+# apt-get install --no-install-recommends software-properties-common
+# sudo add-apt-repository ppa:vbernat/haproxy-2.8
+# sudo apt-get install haproxy=2.8.\*
 
-$ sudo add-apt-repository ppa:vbernat/haproxy-2.8 -y
-
-$ sudo apt install haproxy=2.8.\*
-
+https://haproxy.debian.net/#distribution=Ubuntu&release=focal&version=2.8
 
 apt-get install haproxy
 
