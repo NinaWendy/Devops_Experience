@@ -14,7 +14,7 @@ spec :
      spec :
        containers :
        - name : elixir-app  
-         image : pesaflow/ra-elixir-base 
+         image : ra-elixir-base 
          ports :
          - containerPort :4000
          resources:

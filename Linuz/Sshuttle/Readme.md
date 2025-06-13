@@ -33,6 +33,9 @@ brew install sshuttle  # For macOS
 Assume you have a web service running on port 8080 on a remote server with IP `192.168.1.100` and your SSH username is `user`. You would run:
 ```sh
 sshuttle -r user@192.168.1.100 0.0.0.0/0
+
+sshuttle -v -r ubuntu@197.248.11.140 172.18.8.190/32
+for jump host
 ```
 Then, access the web service by navigating to `http://localhost:8080` in your web browser.
 

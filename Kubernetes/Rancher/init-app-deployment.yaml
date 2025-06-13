@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: init-app 
-        image: pesaflow/ra-python-base 
+        image: ra-python-base 
         command: ["/bin/sh", "-c"]
         args:
           - |

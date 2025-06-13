@@ -23,6 +23,8 @@ Oracle Linux: 8, 9
 Rocky Linux: 8, 9
 AlmaLinux: 8, 9
 
+Cluster configuration done only through cli
+
 NOTE
 List of required TCP ports that must be open for the database cluster:
 
@@ -49,7 +51,7 @@ for the scheme "PostgreSQL High-Availability with Load Balancing":
 docker run -d --name autobase-console \
   --publish 80:80 \
   --publish 8080:8080 \
-  --env PG_CONSOLE_API_URL=http://localhost:8080/api/v1 \
+  --env PG_CONSOLE_API_URL=http://192.168.84.54:8080/api/v1 \
   --env PG_CONSOLE_AUTHORIZATION_TOKEN=secret_token \
   --env PG_CONSOLE_DOCKER_IMAGE=autobase/automation:latest \
   --volume console_postgres:/var/lib/postgresql \
@@ -59,11 +61,14 @@ docker run -d --name autobase-console \
   autobase/console:latest
 ```
 
+![deploying](deploy.png)
+
+
 ### CLI
 
 NOTE:
  - Correct installation of Python
- - Correct installation of Amsible-core
+ - Correct installation of Ansible-core
 
 `sudo apt update && sudo apt install -y python3-pip sshpass git`
 
@@ -153,6 +158,29 @@ python -m pip install --upgrade --user ansible
 ansible --version
 ```
 
+### Install python
+sudo apt update
+sudo apt install -y software-properties-common
+
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update
+sudo apt install -y python3.10 python3.10-venv python3.10-distutils
+
+sudo ln -sf /usr/bin/python3.10 /usr/bin/python3
+python3 --version
+
+### Install pip for v3.13
+wget https://bootstrap.pypa.io/get-pip.py
+python3.13 get-pip.py --user
+python3.13 -m pip --version
+
+### Install ansible
+rm -f ~/.local/bin/ansible ~/.local/bin/ansible-playbook
+s
+python3.10 -m pip install --force-reinstall --user ansible
+
+python -m pip install --upgrade --user ansible
+
 
 Make sure its
 
@@ -182,9 +210,94 @@ sudo patronictl -c /etc/patroni.yml list ....check patroni cluster name
 
 psql --version
 
+ansible-playbook config_pgcluster.yml
+
 ansible-playbook deploy_pgcluster.yml
 
-ansible-playbook deploy_pgcluster.yml -e "enable_timescale=true"
+
+
+ERRORS: 
+
+`Traceback (most recent call last):
+  File "/usr/local/bin/patronictl", line 5, in <module>
+    from patroni.ctl import ctl
+ModuleNotFoundError: No module named 'patroni'`
+
+PatroniFatalException: Can not find suitable configuration of distributed configuration store
+curl http://192.168.84.53:2379/health
+curl: (7) Failed to connect to 192.168.84.53 port 2379 after 0 ms: Connection refused
+
+
+solution:  `sudo pip3 install patroni` 
+
+python3.10 -m pip install patroni
+
+sudo nano /etc/default/etcd
+ETCD_LISTEN_CLIENT_URLS="http://0.0.0.0:2379"
+ETCD_ADVERTISE_CLIENT_URLS="http://192.168.84.53:2379"
+sudo systemctl daemon-reexec
+sudo systemctl restart etcd
+
+sudo pip3 install etcd3 ...with and without sudo
+sudo pip install python-etcd....with and without sudo
 
 
 
+
+....
+
+update /roles/common/default/main.yaml
+
+`patroni_superuser_username:`
+`postgres_username:`
+`postgres_password:`
+
+
+
+### Change psql user password
+
+sudo nano /etc/postgresql/14/main/pg_hba.conf 
+
+change `host    all             all             127.0.0.1/32            trust`
+sudo systemctl restart postgresql
+psql -h 127.0.0.1 -U postgres -d postgres
+sudo nano /etc/postgresql/14/main/pg_hba.conf 
+sudo systemctl restart postgresql
+psql -h 127.0.0.1 -U postgres -d postgres
+
+
+
+
+COMMANDS
+
+patronictl list
+
+
+UPGRADE UBUNTU
+
+`sudo apt update`
+
+`sudo apt upgrade`
+
+`lsb_release -a`
+
+`sudo do-release-upgrade`
+
+`sudo reboot`
+
+`lsb_release -a`
+
+
+
+
+    users:
+        admin:
+          password: admin
+            options:
+                - createrole
+                - createdb
+
+
+/etc/pam.d/sudo
+
+sudo nano /etc/systemd/system/patroni.service
